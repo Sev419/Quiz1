@@ -1,76 +1,70 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, View, Dimensions } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, Text, View, Image, FlatList } from 'react-native';
 
-const { width, height } = Dimensions.get('window');
+export default function App() {
+  const [characters, setCharacters] = useState([]);
 
-const App = () => {
-  return (
-    <View style={styles.container}>
-      {/* Pantalla */}
-      <View style={styles.screen}></View>
-      
-      {/* Fila de tres botones */}
-      <View style={styles.row}>
-        <View style={styles.button}></View>
-        <View style={styles.button}></View>
-        <View style={styles.button}></View>
-      </View>
-      
-      {/* Botón ancho */}
-      <View style={styles.wideButton}></View>
-      
-      {/* Grid de botones (3x2) */}
-      <View style={styles.grid}>
-        <View style={styles.button}></View>
-        <View style={styles.button}></View>
-        <View style={styles.button}></View>
-        <View style={styles.button}></View>
-        <View style={styles.button}></View>
-        <View style={styles.button}></View>
-      </View>
-      
-      <StatusBar style="auto" />
+  useEffect(() => {
+    fetch('https://rickandmortyapi.com/api/character')
+      .then(response => response.json())
+      .then(json => setCharacters(json.results))
+      .catch(error => console.error(error));
+  }, []);
+
+  const renderItem = ({ item }) => (
+    <View style={styles.card}>
+      <Image source={{ uri: item.image }} style={styles.image} />
+      <Text style={styles.name}>{item.name}</Text>
+      <Text style={styles.status}>{item.status} - {item.species}</Text>
     </View>
   );
-} 
 
-export default App;
+  return (
+    <View style={styles.container}>
+      <FlatList
+        data={characters}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={renderItem}
+        contentContainerStyle={styles.list}
+      />
+    </View>
+  );
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'space-evenly',
+    backgroundColor: '#f4f4f4',
+    paddingTop: 40,
+  },
+  list: {
     alignItems: 'center',
-    backgroundColor: '#fff',
-    paddingVertical: 20,
   },
-  screen: {
-    width: width * 0.9,
-    height: height * 0.15,
-    backgroundColor: '#e0e0e0',
+  card: {
+    backgroundColor: 'white',
     borderRadius: 10,
+    padding: 15,
+    marginVertical: 10,
+    alignItems: 'center',
+    width: 250,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 5,
   },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: width * 0.9,
+  image: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    marginBottom: 10,
   },
-  button: {
-    width: width * 0.25,
-    height: width * 0.25,
-    backgroundColor: '#ccc',
-    borderRadius: 10,
+  name: {
+    fontSize: 18,
+    fontWeight: 'bold',
   },
-  wideButton: {
-    width: width * 0.9,
-    height: height * 0.07,
-    backgroundColor: '#bbb',
-    borderRadius: 10,
-  },
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-around',
-    width: width * 0.9,
+  status: {
+    fontSize: 14,
+    color: 'gray',
   },
 });
